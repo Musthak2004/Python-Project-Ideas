@@ -1,6 +1,5 @@
 import json
 from datetime import datetime
-import os
 
 expenses = []
 
@@ -22,16 +21,9 @@ class Expense:
 
         category = input('Enter your category: ')
 
-        # Load existing data safely
-        if os.path.exists("expenses.json"):
-            try:
-                with open("expenses.json", "r", encoding="utf-8") as f:
-                    expenses = json.load(f)
-            except json.JSONDecodeError:
-                print("JSON file is empty or corrupted. Starting fresh.")
-                expenses = []
-        else:
-            expenses = []
+        with open("expenses.json", "w", encoding="utf-8") as f:
+            json.dump(expenses, f, indent=2)
+
 
         # Create new entry
         entry = {
@@ -55,22 +47,45 @@ class Expense:
         else:
             for i, x in enumerate(expenses, start=1):
                 print(f"\n{i}. Expense Name: {x['Expense Name']}\n Expense amount: {x['Expense amount']}\n Expense category: {x['Expense category']}\n Date: {x['Date_time']}")
-
-    def money(self):
+            
+    def total_spent(self):
         print('\n--- Welcome to "Money" section ---')
         if not expenses:
             print("Please try to add some expenses!")
             return
-        
-        else:
-            your_money = ("Enter your budget money for all expenses: ")
-            total_spent = 
-            remaining = your_money - total_spent
 
-            print("Total spent: ", total_spent)
-            print("Remaining: ", remaining)
+        try:
+            your_money = float(input("Enter your budget money for all expenses: $"))
+        except ValueError:
+            print("Invalid amount. Please enter a number.")
+            return
+
+        total_spent = sum(x["Expense amount"] for x in expenses)
+        remaining = your_money - total_spent
+
+        print(f"\nTotal spent: ${total_spent:.2f}")
+        print(f"Remaining: ${remaining:.2f}")
 
 e1 = Expense()
-e1.add_expense()
-e1.view_all_expenses()
-e1.money()
+
+while True:
+    print("\n--- Welcome to 'Expense Tracker' ---")
+    print("1. Add Expense.")
+    print("2. View All Expense.")
+    print("3. Total Spent.")
+    print("4. Exit.")
+
+    choice = input("Enter your choices (1-4): ")
+
+    if choice == '1':
+        e1.add_expense()
+    elif choice == '2':
+        e1.view_all_expenses()
+    elif choice == '3':
+        e1.total_spent()
+    elif choice == '4':
+        print("Thank you for using me... Goodbye!")
+        break
+    else:
+        print("Invalid choice Type (1-4)!!!")
+        continue
