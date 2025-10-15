@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+import os
 
 expenses = []
 
@@ -21,9 +22,16 @@ class Expense:
 
         category = input('Enter your category: ')
 
-        with open("expenses.json", "w", encoding="utf-8") as f:
-            json.dump(expenses, f, indent=2)
-
+        # Load existing data safely
+        if os.path.exists("expenses.json"):
+            try:
+                with open("expenses.json", "r", encoding="utf-8") as f:
+                    expenses = json.load(f)
+            except json.JSONDecodeError:
+                print("JSON file is empty or corrupted. Starting fresh.")
+                expenses = []
+        else:
+            expenses = []
 
         # Create new entry
         entry = {
@@ -36,21 +44,47 @@ class Expense:
         # Add and save
         expenses.append(entry)
 
+        with open("expenses.json", "w", encoding="utf-8") as f:
+            json.dump(expenses, f, indent=2)
+
         print("Expense added successfully!")
 
     def view_all_expenses(self):
         print('\n--- Welcome to "View All Expenses" section ---')
-        if not expenses:
+
+        if not os.path.exists("expenses.json"):
+            print("No expenses file found.")
+            return
+
+        try:
+            with open("expenses.json", "r", encoding="utf-8") as f:
+                expenses_data = json.load(f)
+        except json.JSONDecodeError:
+            print("Unable to read expenses. File may be corrupted.")
+            return
+
+        if not expenses_data:
             print('No expenses!')
             return
-        
-        else:
-            for i, x in enumerate(expenses, start=1):
-                print(f"\n{i}. Expense Name: {x['Expense Name']}\n Expense amount: {x['Expense amount']}\n Expense category: {x['Expense category']}\n Date: {x['Date_time']}")
-            
+
+        for i, x in enumerate(expenses_data, start=1):
+            print(f"\n{i}. Expense Name: {x['Expense Name']}\n   Expense amount: ${x['Expense amount']:.2f}\n   Expense category: {x['Expense category']}\n   Date: {x['Date_time']}")
+
     def total_spent(self):
         print('\n--- Welcome to "Money" section ---')
-        if not expenses:
+
+        if not os.path.exists("expenses.json"):
+            print("No expenses file found.")
+            return
+
+        try:
+            with open("expenses.json", "r", encoding="utf-8") as f:
+                expenses_data = json.load(f)
+        except json.JSONDecodeError:
+            print("Unable to read expenses. File may be corrupted.")
+            return
+
+        if not expenses_data:
             print("Please try to add some expenses!")
             return
 
@@ -60,12 +94,13 @@ class Expense:
             print("Invalid amount. Please enter a number.")
             return
 
-        total_spent = sum(x["Expense amount"] for x in expenses)
+        total_spent = sum(x["Expense amount"] for x in expenses_data)
         remaining = your_money - total_spent
 
         print(f"\nTotal spent: ${total_spent:.2f}")
         print(f"Remaining: ${remaining:.2f}")
 
+# Main loop
 e1 = Expense()
 
 while True:
@@ -88,4 +123,3 @@ while True:
         break
     else:
         print("Invalid choice Type (1-4)!!!")
-        continue
