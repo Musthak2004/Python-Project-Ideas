@@ -40,19 +40,22 @@ class Contact:
         for i, contact in enumerate(contacts, start=1):
             print(f"{i}. {contact}")
 
-        choice = input("Delete (all/one): ").lower()
-        if choice == "all":
-            contacts.clear()
-            print("All contacts deleted.")
-        elif choice == "one":
-            index = int(input("Enter contact number to delete: ")) - 1
-            if 0 <= index < len(contacts):
-                contacts.pop(index)
-                print("Contact deleted.")
+        try:
+            choice = input("Delete (all/one): ").lower()
+            if choice == "all":
+                contacts.clear()
+                print("All contacts deleted.")
+            elif choice == "one":
+                index = int(input("Enter contact number to delete: ")) - 1
+                if 0 <= index < len(contacts):
+                    contacts.pop(index)
+                    print("Contact deleted.")
+                else:
+                    print("Invalid index.")
             else:
-                print("Invalid index.")
-        else:
-            print("Invalid choice.")
+                print("Invalid choice.")
+        except ValueError:
+            print("Invalid value input.")
 
         with open("contacts.json", "w") as file:
             json.dump(contacts, file, indent=4)
